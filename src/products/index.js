@@ -17,8 +17,11 @@ productsRouter.post("/", async (req, res, next) => {
 productsRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
+    if (req.query.minPrice && req.query.maxPrice)
+      query.price = { [Op.between]: [req.query.minPrice, req.query.maxPrice] };
     if (req.query.category)
       query.category = { [Op.iLike]: `${req.query.category}%` };
+    if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
     const products = await ProductsModel.findAndCountAll({
       where: { ...query },
       // limit: 1,
