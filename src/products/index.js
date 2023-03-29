@@ -16,8 +16,14 @@ productsRouter.post("/", async (req, res, next) => {
 
 productsRouter.get("/", async (req, res, next) => {
   try {
-    //   const query = {}
+    const query = {};
+    if (req.query.category)
+      query.category = { [Op.iLike]: `${req.query.category}%` };
     const products = await ProductsModel.findAndCountAll({
+      where: { ...query },
+      // limit: 1,
+      // offset: 1,
+
       // attributes: ["firstName", "lastName"],
     });
 
