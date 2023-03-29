@@ -22,15 +22,12 @@ productsRouter.get("/", async (req, res, next) => {
     if (req.query.category)
       query.category = { [Op.iLike]: `${req.query.category}%` };
     if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
-    const products = await ProductsModel.findAndCountAll({
+    const { count, rows: products } = await ProductsModel.findAndCountAll({
       where: { ...query },
-      // limit: 1,
-      // offset: 1,
-
-      // attributes: ["firstName", "lastName"],
+      ...(req.query.limit && { limit: req.query.limit }),
+      ...(req.query.offset && { offset: req.query.offset }),
     });
-
-    res.send(products);
+    res.send({ numberOfPages: Math.ceil(count / req.query.limit), products });
   } catch (error) {
     next(error);
   }
