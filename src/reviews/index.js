@@ -30,4 +30,22 @@ reviewsRouter.get("/:id/reviews", async (req, res, next) => {
   }
 });
 
+reviewsRouter.get("/:id/reviews/:reviewId", async (req, res, next) => {
+  try {
+    const review = await ReviewsModel.findByPk(req.params.reviewId);
+    if (review) {
+      res.send(review);
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Review with id ${req.params.reviewId} was not found!`
+        )
+      );
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default reviewsRouter;

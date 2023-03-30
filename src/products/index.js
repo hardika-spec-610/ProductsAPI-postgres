@@ -85,7 +85,7 @@ productsRouter.get("/", async (req, res, next) => {
         {
           model: ReviewsModel,
           include: [{ model: UsersModel, attributes: ["name", "surname"] }],
-          attributes: ["content"],
+          attributes: ["id", "content"],
         },
         // to exclude from the results the junction table rows --> through: { attributes: [] }
       ],
