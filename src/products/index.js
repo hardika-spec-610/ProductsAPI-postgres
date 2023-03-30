@@ -11,26 +11,26 @@ const productsRouter = express.Router();
 
 productsRouter.post("/", async (req, res, next) => {
   try {
-    const { id } = await ProductsModel.create(req.body);
+    const { productId } = await ProductsModel.create(req.body);
     // When I create a new blog post, if that has to be associated with one or more categories I'll have to add one or more rows to the junction table (blogsCategories table), containing blogpostId and corresponding categoryId
     if (req.body.categories) {
       // ["de181145-f7d4-4c07-adf4-69dd01911ff0", "aaeb8a80-8a74-4917-a508-afaa3eea6787"] --> MAP --> [{blogId: blogId, categoryId:"de181145-f7d4-4c07-adf4-69dd01911ff0"}, {blogId: blogId, categoryId: "aaeb8a80-8a74-4917-a508-afaa3eea6787"}]
       await ProductsCategoriesModel.bulkCreate(
         req.body.categories.map((category) => {
-          return { id: id, categoryId: category };
+          return { productId: productId, categoryId: category };
         })
       );
     }
-    res.status(201).send({ id });
+    res.status(201).send({ productId });
   } catch (error) {
     next(error);
   }
 });
 
-productsRouter.post("/:id/categories", async (req, res, next) => {
+productsRouter.post("/:productId/categories", async (req, res, next) => {
   try {
     const { id } = await ProductsCategoriesModel.create({
-      id: req.params.id,
+      productId: req.params.productId,
       categoryId: req.body.categoryId,
     });
     res.send({ id });
@@ -84,8 +84,10 @@ productsRouter.get("/", async (req, res, next) => {
         },
         {
           model: ReviewsModel,
-          include: [{ model: UsersModel, attributes: ["name", "surname"] }],
-          attributes: ["id", "content"],
+          include: [
+            { model: UsersModel, attributes: ["firstname", "lastname"] },
+          ],
+          attributes: ["reviewId", "content"],
         },
         // to exclude from the results the junction table rows --> through: { attributes: [] }
       ],
@@ -100,9 +102,9 @@ productsRouter.get("/", async (req, res, next) => {
   }
 });
 
-productsRouter.get("/:id", async (req, res, next) => {
+productsRouter.get("/:productId", async (req, res, next) => {
   try {
-    const product = await ProductsModel.findByPk(req.params.id, {
+    const product = await ProductsModel.findByPk(req.params.productId, {
       include: [
         {
           model: CategoriesModel,
@@ -119,38 +121,53 @@ productsRouter.get("/:id", async (req, res, next) => {
     if (product) {
       res.send(product);
     } else {
-      next(createHttpError(404, `product with id ${req.params.id} not found!`));
+      next(
+        createHttpError(
+          404,
+          `product with id ${req.params.productId} not found!`
+        )
+      );
     }
   } catch (error) {
     next(error);
   }
 });
 
-productsRouter.put("/:id", async (req, res, next) => {
+productsRouter.put("/:productId", async (req, res, next) => {
   try {
     const [numberOfUpdatedRows, updatedRecords] = await ProductsModel.update(
       req.body,
-      { where: { id: req.params.id }, returning: true }
+      { where: { productId: req.params.productId }, returning: true }
     );
     if (numberOfUpdatedRows === 1) {
       res.send(updatedRecords[0]);
     } else {
-      next(createHttpError(404, `product with id ${req.params.id} not found!`));
+      next(
+        createHttpError(
+          404,
+          `product with id ${req.params.productId} not found!`
+        )
+      );
     }
   } catch (error) {
     next(error);
   }
 });
 
-productsRouter.delete("/:id", async (req, res, next) => {
+productsRouter.delete("/:productId", async (req, res, next) => {
   try {
     const numberOfDeletedRows = await ProductsModel.destroy({
-      where: { id: req.params.id },
+      where: { productId: req.params.productId },
     });
     if (numberOfDeletedRows === 1) {
       res.status(204).send();
     } else {
-      next(createHttpError(404, `product with id ${req.params.id} not found!`));
+      next(
+        createHttpError(
+          404,
+          `product with id ${req.params.productId} not found!`
+        )
+      );
     }
   } catch (error) {
     next(error);

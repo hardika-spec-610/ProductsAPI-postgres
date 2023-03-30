@@ -5,8 +5,8 @@ const usersRouter = Express.Router();
 
 usersRouter.post("/", async (req, res, next) => {
   try {
-    const { id } = await UsersModel.create(req.body);
-    res.status(201).send({ id });
+    const { userId } = await UsersModel.create(req.body);
+    res.status(201).send({ userId });
   } catch (error) {
     next(error);
   }

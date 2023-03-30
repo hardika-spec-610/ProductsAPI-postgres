@@ -1,20 +1,20 @@
 import sequelize from "../db.js";
 import { DataTypes } from "sequelize";
+import ReviewsModel from "../reviews/model.js";
 
 const UsersModel = sequelize.define("user", {
-  id: {
+  userId: {
     type: DataTypes.UUID,
     primaryKey: true,
     defaultValue: DataTypes.UUIDV4,
   },
-  name: {
+  firstname: {
     type: DataTypes.STRING(20),
     allowNull: false,
   },
-  surname: {
+  lastname: {
     type: DataTypes.STRING(20),
     allowNull: false,
   },
 });
-
 export default UsersModel;

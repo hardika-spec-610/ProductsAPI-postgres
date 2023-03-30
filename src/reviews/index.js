@@ -6,23 +6,23 @@ import ProductsModel from "../products/model.js";
 
 const reviewsRouter = Express.Router();
 
-reviewsRouter.post("/:id/reviews", async (req, res, next) => {
+reviewsRouter.post("/:productId/reviews", async (req, res, next) => {
   try {
-    const { id } = await ReviewsModel.create({
+    const { reviewId } = await ReviewsModel.create({
       ...req.body,
-      productId: req.params.id,
+      productId: req.params.productId,
     });
-    res.status(201).send({ id });
+    res.status(201).send({ reviewId });
   } catch (error) {
     next(error);
   }
 });
 
-reviewsRouter.get("/:id/reviews", async (req, res, next) => {
+reviewsRouter.get("/:productId/reviews", async (req, res, next) => {
   try {
     const reviews = await ReviewsModel.findAll({
-      where: { productId: req.params.id },
-      include: [{ model: UsersModel, attributes: ["name", "surname"] }],
+      where: { productId: req.params.productId },
+      include: [{ model: UsersModel, attributes: ["firstname", "lastname"] }],
     });
     res.send(reviews);
   } catch (error) {
@@ -30,7 +30,7 @@ reviewsRouter.get("/:id/reviews", async (req, res, next) => {
   }
 });
 
-reviewsRouter.get("/:id/reviews/:reviewId", async (req, res, next) => {
+reviewsRouter.get("/:productId/reviews/:reviewId", async (req, res, next) => {
   try {
     const review = await ReviewsModel.findByPk(req.params.reviewId);
     if (review) {

@@ -7,7 +7,7 @@ import ReviewsModel from "../reviews/model.js";
 const ProductsModel = sequelize.define(
   "product",
   {
-    id: {
+    productId: {
       type: DataTypes.UUID,
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4, // <-- This automagically generates a unique string every time we insert a new record
@@ -46,14 +46,16 @@ const ProductsModel = sequelize.define(
 // Many to many relationship
 ProductsModel.belongsToMany(CategoriesModel, {
   through: ProductsCategoriesModel,
-  foreignKey: { name: "id", allowNull: false },
+  foreignKey: { name: "productId", allowNull: false },
 });
 CategoriesModel.belongsToMany(ProductsModel, {
   through: ProductsCategoriesModel,
   foreignKey: { name: "categoryId", allowNull: false },
 });
 
-ProductsModel.hasMany(ReviewsModel);
+ProductsModel.hasMany(ReviewsModel, {
+  foreignKey: { name: "productId", allowNull: false },
+});
 ReviewsModel.belongsTo(ProductsModel, {
   foreignKey: { name: "productId", allowNull: false },
 });
