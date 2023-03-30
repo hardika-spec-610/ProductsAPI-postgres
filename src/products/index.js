@@ -4,6 +4,8 @@ import { Op } from "sequelize";
 import ProductsModel from "./model.js";
 import ProductsCategoriesModel from "./productCategoriesModel.js";
 import CategoriesModel from "../categories/model.js";
+import ReviewsModel from "../reviews/model.js";
+import UsersModel from "../users/model.js";
 
 const productsRouter = express.Router();
 
@@ -40,26 +42,56 @@ productsRouter.post("/:id/categories", async (req, res, next) => {
 productsRouter.get("/", async (req, res, next) => {
   try {
     const query = {};
-    if (req.query.minPrice && req.query.maxPrice)
-      query.price = { [Op.between]: [req.query.minPrice, req.query.maxPrice] };
-    if (req.query.category)
-      query.category = { [Op.iLike]: `${req.query.category}%` };
-    if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
+    let order = [];
+    const { name, description, minPrice, maxPrice, category, sort } = req.query;
+
+    const limit =
+      req.query.limit <= 100 && req.query.limit >= 10 ? req.query.limit : 10;
+    const offset = req.query.offset ? req.query.offset : 0;
+    if (sort) {
+      order = [
+        [
+          sort.charAt(0) === "-" ? sort.substring(1) : sort,
+          sort.charAt(0) === "-" ? "DESC" : "ASC",
+        ],
+      ];
+    }
+    if (minPrice && maxPrice)
+      query.price = { [Op.between]: [minPrice, maxPrice] };
+    if (category) query.category = { [Op.iLike]: `${category}%` };
+    if (name) query.name = { [Op.iLike]: `${name}%` };
+    if (description) query.description = { [Op.iLike]: `%${description}%` };
+    if (name && description) {
+      delete query.name;
+      delete query.description;
+      query = {
+        ...query,
+        [Op.or]: [
+          { name: { [Op.iLike]: `%${name}` } },
+          { description: { [Op.iLike]: `%${description}` } },
+        ],
+      };
+    }
     const { count, rows: products } = await ProductsModel.findAndCountAll({
       where: { ...query },
-      limit: req.query.limit,
-      offset: req.query.offset,
+      limit,
+      offset,
       include: [
         {
           model: CategoriesModel,
           attributes: ["categoryId", "categoryName"],
           through: { attributes: [] },
         },
+        {
+          model: ReviewsModel,
+          include: [{ model: UsersModel, attributes: ["name", "surname"] }],
+          attributes: ["content"],
+        },
         // to exclude from the results the junction table rows --> through: { attributes: [] }
       ],
     });
     res.send({
-      numberOfPages: Math.ceil(count / req.query.limit),
+      numberOfPages: Math.ceil(count / limit),
       total: count,
       products,
     });

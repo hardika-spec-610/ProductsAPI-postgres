@@ -2,28 +2,29 @@ import Express from "express";
 import createHttpError from "http-errors";
 import UsersModel from "../users/model.js";
 import ReviewsModel from "./model.js";
+import ProductsModel from "../products/model.js";
 
 const reviewsRouter = Express.Router();
 
-reviewsRouter.post("/:productId/reviews", async (request, response, next) => {
+reviewsRouter.post("/:id/reviews", async (req, res, next) => {
   try {
     const { id } = await ReviewsModel.create({
-      ...request.body,
-      productId: request.params.productId,
+      ...req.body,
+      productId: req.params.id,
     });
-    response.status(201).send({ id });
+    res.status(201).send({ id });
   } catch (error) {
     next(error);
   }
 });
 
-reviewsRouter.get("/:productId/reviews", async (request, response, next) => {
+reviewsRouter.get("/:id/reviews", async (req, res, next) => {
   try {
     const reviews = await ReviewsModel.findAll({
-      where: { productId: request.params.productId },
+      where: { productId: req.params.id },
       include: [{ model: UsersModel, attributes: ["name", "surname"] }],
     });
-    response.send(reviews);
+    res.send(reviews);
   } catch (error) {
     next(error);
   }
