@@ -8,6 +8,9 @@ import {
   notFoundErrorHandler,
 } from "./errorHandlers.js";
 import productsRouter from "./products/index.js";
+import categoriesRouter from "./categories/index.js";
+import reviewsRouter from "./reviews/index.js";
+import usersRouter from "./users/index.js";
 
 const server = Express();
 const port = process.env.PORT || 3001;
@@ -18,6 +21,9 @@ server.use(Express.json());
 
 // ****************************** ENDPOINTS *******************************
 server.use("/products", productsRouter);
+server.use("/categories", categoriesRouter);
+server.use("/products", reviewsRouter);
+server.use("/users", usersRouter);
 
 // *************************** ERROR HANDLERS *****************************
 server.use(badRequestErrorHandler);

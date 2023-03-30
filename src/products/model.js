@@ -1,5 +1,8 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../db.js";
+import ProductsCategoriesModel from "./productCategoriesModel.js";
+import CategoriesModel from "../categories/model.js";
+import ReviewsModel from "../reviews/model.js";
 
 const ProductsModel = sequelize.define(
   "product",
@@ -13,16 +16,16 @@ const ProductsModel = sequelize.define(
       type: DataTypes.TEXT(50), // VARCHAR(50)
       allowNull: false,
     },
-    category: {
-      type: DataTypes.TEXT(50),
-      validate: {
-        isIn: [["electronics", "clothing", "books", "beauty", "home"]],
-        // the array contains the allowed categories
-      },
+    // category: {
+    //   type: DataTypes.TEXT(50),
+    //   validate: {
+    //     isIn: [["electronics", "clothing", "books", "beauty", "home"]],
+    //     // the array contains the allowed categories
+    //   },
 
-      defaultValue: "electronics",
-      allowNull: false,
-    },
+    //   defaultValue: "electronics",
+    //   allowNull: false,
+    // },
     description: {
       type: DataTypes.TEXT(255), // VARCHAR(255)
       allowNull: false,
@@ -39,5 +42,20 @@ const ProductsModel = sequelize.define(
   //{ timestamps: false }
   // TIMESTAMPS ARE TRUE BY DEFAULT
 );
+
+// Many to many relationship
+ProductsModel.belongsToMany(CategoriesModel, {
+  through: ProductsCategoriesModel,
+  foreignKey: { name: "id", allowNull: false },
+});
+CategoriesModel.belongsToMany(ProductsModel, {
+  through: ProductsCategoriesModel,
+  foreignKey: { name: "categoryId", allowNull: false },
+});
+
+ProductsModel.hasMany(ReviewsModel);
+ReviewsModel.belongsTo(ProductsModel, {
+  foreignKey: { name: "productId", allowNull: false },
+});
 
 export default ProductsModel;
