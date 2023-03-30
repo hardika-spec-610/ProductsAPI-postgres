@@ -14,15 +14,13 @@ const ProductsModel = sequelize.define(
       allowNull: false,
     },
     category: {
-      //   type: DataTypes.ENUM(
-      //     "electronics",
-      //     "clothing",
-      //     "books",
-      //     "beauty",
-      //     "home"
-      //   ), // VARCHAR(50)
       type: DataTypes.TEXT(50),
-      defaultValue: "electronics", // add a default value to match the new ENUM type
+      validate: {
+        isIn: [["electronics", "clothing", "books", "beauty", "home"]],
+        // the array contains the allowed categories
+      },
+
+      defaultValue: "electronics",
       allowNull: false,
     },
     description: {

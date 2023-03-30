@@ -24,10 +24,14 @@ productsRouter.get("/", async (req, res, next) => {
     if (req.query.name) query.name = { [Op.iLike]: `${req.query.name}%` };
     const { count, rows: products } = await ProductsModel.findAndCountAll({
       where: { ...query },
-      ...(req.query.limit && { limit: req.query.limit }),
-      ...(req.query.offset && { offset: req.query.offset }),
+      limit: req.query.limit,
+      offset: req.query.offset,
     });
-    res.send({ numberOfPages: Math.ceil(count / req.query.limit), products });
+    res.send({
+      numberOfPages: Math.ceil(count / req.query.limit),
+      total: count,
+      products,
+    });
   } catch (error) {
     next(error);
   }
