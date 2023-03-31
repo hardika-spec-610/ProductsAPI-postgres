@@ -10,7 +10,7 @@ const sequelize = new Sequelize(PG_DB, PG_USER, PG_PASSWORD, {
 
 export const pgConnect = async () => {
   try {
-    await sequelize.authenticate();
+    await sequelize.authenticate(); // function is used to connect to DB with Sequelize
     console.log(`Successfully connected to Postgres!`);
     await sequelize.sync({ alter: true });
     console.log(`All models syncronized!`);

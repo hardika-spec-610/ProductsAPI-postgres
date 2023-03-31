@@ -54,7 +54,8 @@ CategoriesModel.belongsToMany(ProductsModel, {
 });
 
 ProductsModel.hasMany(ReviewsModel, {
-  foreignKey: { name: "productId", allowNull: false },
+  foreignKey: { name: "productId", allowNull: false }, // How can I implement a 1:N relationship in a relational database?
+  //--> Adding a foreign key on the table that lies on the "N" part of the relationship
 });
 ReviewsModel.belongsTo(ProductsModel, {
   foreignKey: { name: "productId", allowNull: false },
